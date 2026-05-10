@@ -104,7 +104,7 @@ public class EnemyAI : MonoBehaviour
     // 在攻击动画的伤害帧通过 Animation Event 调用
     public void OnDealDamage()
     {
-        fighter.TryDealDamage(playerFighter);
+        fighter.DealDamageInRange();
     }
 
     // 在 SlashDown 动画结束时通过 Animation Event 调用

@@ -58,7 +58,7 @@ public class PlayerMove : MonoBehaviour
     // 在 SlashDown 攻击动画的伤害帧通过 Animation Event 调用
     public void OnDealDamage()
     {
-        fighter.TryDealDamage(enemyFighter);
+        fighter.DealDamageInRange();
     }
 
     public void OnAttackEnd()

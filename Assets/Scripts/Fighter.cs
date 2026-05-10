@@ -1,17 +1,24 @@
 using UnityEngine;
 using System;
 
+public enum FighterTeam
+{
+    Player,
+    Enemy
+}
+
 public class Fighter : MonoBehaviour
 {
     public int maxHP = 100;
     public int currentHP;
     public int attackDamage = 20;
     public float attackRange = 2f;
+    public FighterTeam team = FighterTeam.Player;
 
     [HideInInspector] public bool isBlocking = false;
     [HideInInspector] public bool isAttacking = false;
 
-    public event Action<int, int> OnHPChanged; // currentHP, maxHP
+    public event Action<int, int> OnHPChanged;
     public event Action OnDeath;
 
     void Start()
@@ -19,20 +26,37 @@ public class Fighter : MonoBehaviour
         currentHP = maxHP;
     }
 
-    // 尝试对目标造成伤害，在攻击动画的关键帧调用
+    /// <summary>
+    /// 对指定目标造成伤害（保留旧接口，兼容现有调用）
+    /// </summary>
     public void TryDealDamage(Fighter target)
     {
         if (target == null || target.currentHP <= 0) return;
 
         float dist = Vector3.Distance(transform.position, target.transform.position);
-
-        // 超出攻击范围，不造成伤害
         if (dist > attackRange) return;
-
-        // 对方正在防御，不造成伤害
         if (target.isBlocking) return;
 
         target.TakeDamage(attackDamage);
+    }
+
+    /// <summary>
+    /// 自动检测攻击范围内的敌对目标并造成伤害（支持多敌人）
+    /// </summary>
+    public void DealDamageInRange()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, attackRange);
+        foreach (var hit in hits)
+        {
+            Fighter target = hit.GetComponent<Fighter>();
+            if (target == null) continue;
+            if (target == this) continue;
+            if (target.team == this.team) continue; // 同阵营不伤害
+            if (target.currentHP <= 0) continue;
+            if (target.isBlocking) continue;
+
+            target.TakeDamage(attackDamage);
+        }
     }
 
     public void TakeDamage(int damage)

@@ -2053,6 +2053,7 @@ MonoBehaviour:
   currentHP: 0
   attackDamage: 20
   attackRange: 2
+  team: 1
   isBlocking: 0
   isAttacking: 0
 --- !u!1 &783638601
@@ -7128,6 +7129,7 @@ MonoBehaviour:
   currentHP: 0
   attackDamage: 20
   attackRange: 2
+  team: 0
   isBlocking: 0
   isAttacking: 0
 --- !u!1 &6933734582526787521
