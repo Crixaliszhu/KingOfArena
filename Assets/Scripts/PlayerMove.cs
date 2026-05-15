@@ -15,14 +15,24 @@ public class PlayerMove : MonoBehaviour
     private float gravity = -9.8f;
     private float verticalSpeed = 0f;
 
+    private bool isDead = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        fighter.OnDeath += OnPlayerDeath;
+    }
+
+    void OnPlayerDeath()
+    {
+        if (isDead) return;
+        isDead = true;
+        animator.SetTrigger("die");
     }
 
     void Update()
     {
-        if (fighter.currentHP <= 0) return;
+        if (isDead || GameManager.IsGameOver) return;
 
         // 鼠标左键按下 → 抬剑
         if (Input.GetMouseButtonDown(0) && !isAttacking)
@@ -90,11 +100,15 @@ public class PlayerMove : MonoBehaviour
             if (realSpeed > maxSpeed) realSpeed = maxSpeed;
             speed = realSpeed;
 
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(moveDir),
-                10f * Time.deltaTime
-            );
+            // 只有按W（前进）时才改变朝向
+            if (z > 0.1f)
+            {
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(moveDir),
+                    10f * Time.deltaTime
+                );
+            }
         }
         else
         {
@@ -110,6 +124,11 @@ public class PlayerMove : MonoBehaviour
         movement.y = verticalSpeed * Time.deltaTime;
         controller.Move(movement);
 
+        // 计算本地空间的移动方向，用于动画
+        Vector3 localMove = transform.InverseTransformDirection(moveDir.normalized);
         animator.SetFloat("speed", speed);
+        animator.SetFloat("moveX", localMove.x);
+        animator.SetFloat("moveZ", localMove.z);
     }
+
 }

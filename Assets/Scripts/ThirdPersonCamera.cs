@@ -24,8 +24,8 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        // 暂停时不处理鼠标旋转
-        if (PauseMenuManager.IsPaused) return;
+        // 暂停或游戏结束时不处理鼠标旋转
+        if (PauseMenuManager.IsPaused || GameManager.IsGameOver) return;
 
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;

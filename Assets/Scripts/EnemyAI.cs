@@ -125,8 +125,6 @@ public class EnemyAI : MonoBehaviour
     {
         isDead = true;
         agent.isStopped = true;
-        // 如果有死亡动画参数则播放，否则直接隐藏
-        // animator.SetTrigger("die");
-        gameObject.SetActive(false);
+        animator.SetTrigger("die");
     }
 }

@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 
     private bool gameEnded = false;
 
+    public static bool IsGameOver { get; private set; } = false;
+
     void Start()
     {
         playerFighter.OnHPChanged += OnPlayerHPChanged;
@@ -39,11 +41,19 @@ public class GameManager : MonoBehaviour
     {
         if (gameEnded) return;
         gameEnded = true;
+        IsGameOver = true;
+
+        // 延迟显示游戏结束界面，等待死亡动画播放完毕
+        StartCoroutine(ShowGameOverAfterDelay(message, 2f));
+    }
+
+    private System.Collections.IEnumerator ShowGameOverAfterDelay(string message, float delay)
+    {
+        yield return new WaitForSeconds(delay);
 
         if (gameOverPanel) gameOverPanel.SetActive(true);
         if (gameOverText) gameOverText.text = message;
 
-        // 解锁鼠标
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0f;
     }
@@ -51,6 +61,7 @@ public class GameManager : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f;
+        IsGameOver = false;
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
         );
