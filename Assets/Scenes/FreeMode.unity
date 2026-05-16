@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 24651130}
   - component: {fileID: 24651134}
   - component: {fileID: 24651133}
+  - component: {fileID: 24651135}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -275,6 +276,28 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &24651135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24651129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f839bfbbb043fc1459ed9bd5ff2d9d20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1595804698036029326}
+  minDistance: 5
+  maxDistance: 20
+  minPitch: 30
+  maxPitch: 90
+  zoomSpeed: 2
+  edgeRotateSpeed: 60
+  edgeThreshold: 20
+  panSpeed: 10
+  groundTransform: {fileID: 2012610999}
 --- !u!1 &356672174
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,6 +490,7 @@ GameObject:
   m_Component:
   - component: {fileID: 807707180}
   - component: {fileID: 807707179}
+  - component: {fileID: 807707181}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -554,6 +578,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &807707181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807707178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &983890504
 GameObject:
   m_ObjectHideFlags: 0
@@ -2343,16 +2390,14 @@ Animator:
   m_GameObject: {fileID: 8604214072979815945}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 73ffbc06802a247cfb1b26f4ee67eba8, type: 3}
-  m_Controller: {fileID: 9100000, guid: b72b4183ea37d1b429014fc0fce241f2, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2da50838133f97e428d33e8a52a09188, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
-    are already bound by a Humanoid avatar. These transforms can only be changed
-    by Humanoid clips.\n\tTransform 'RightArm'\n\tFrom animation clip 'SsBlockLeft'"
+  m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -2668,6 +2713,7 @@ MonoBehaviour:
   currentHP: 0
   attackDamage: 20
   attackRange: 2
+  team: 0
   isBlocking: 0
   isAttacking: 0
 --- !u!4 &5323530552801347032
@@ -2960,7 +3006,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8604214072979815945}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23e21feddcae27542ab4073d0bbb51d4, type: 3}
   m_Name: 
@@ -3363,14 +3409,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8604214072979815945}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 73f24556503dd644191d272515b0fc9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 4
+  moveSpeed: 4
   animator: {fileID: 3576954665593589412}
-  cameraTransform: {fileID: 24651132}
+  cameraController: {fileID: 24651135}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 33
 --- !u!4 &8615551294440171151
 Transform:
   m_ObjectHideFlags: 0

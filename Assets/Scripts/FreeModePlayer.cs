@@ -1,62 +1,104 @@
 using UnityEngine;
 
 /// <summary>
-/// 自由模式下的玩家控制器，只有移动功能，无战斗
+/// 自由模式下的玩家控制器
+/// - 鼠标左键点击地面移动角色到目标位置
+/// - 匀速移动，移动时播放行走动画
+/// - 移动时摄像机自动跟随保持角色居中
 /// </summary>
 public class FreeModePlayer : MonoBehaviour
 {
-    public float maxSpeed = 4f;
+    public float moveSpeed = 4f;
     public Animator animator;
-    public Transform cameraTransform;
+    public FreeModeCameraController cameraController;
+    public LayerMask groundLayer; // 用于射线检测地面
 
     private CharacterController controller;
-    private float speed = 0f;
-    private float acceleration = 2f;
+    private Vector3 targetPosition;
+    private bool isMoving = false;
     private float gravity = -9.8f;
     private float verticalSpeed = 0f;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        targetPosition = transform.position;
     }
 
     void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        HandleClickToMove();
+        MoveToTarget();
+    }
 
-        Vector3 camForward = cameraTransform.forward;
-        Vector3 camRight = cameraTransform.right;
-        camForward.y = 0;
-        camRight.y = 0;
-        camForward.Normalize();
-        camRight.Normalize();
-
-        Vector3 moveDir = camForward * z + camRight * x;
-
-        if (moveDir.magnitude > 0.01f)
+    void HandleClickToMove()
+    {
+        // 鼠标左键点击
+        if (Input.GetMouseButtonDown(0))
         {
-            speed = Mathf.MoveTowards(speed, maxSpeed, acceleration * Time.deltaTime);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(moveDir),
-                10f * Time.deltaTime
-            );
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // 射线检测地面
+            if (Physics.Raycast(ray, out hit, 1000f, groundLayer))
+            {
+                targetPosition = hit.point;
+                targetPosition.y = transform.position.y; // 保持同一高度
+                isMoving = true;
+
+                // 朝向目标
+                Vector3 dir = (targetPosition - transform.position).normalized;
+                if (dir.magnitude > 0.01f)
+                {
+                    transform.rotation = Quaternion.LookRotation(dir);
+                }
+            }
         }
-        else
+    }
+
+    void MoveToTarget()
+    {
+        if (!isMoving)
         {
-            speed = 0;
+            if (animator) animator.SetFloat("speed", 0f);
+            return;
         }
 
+        Vector3 direction = targetPosition - transform.position;
+        direction.y = 0;
+        float distance = direction.magnitude;
+
+        // 到达目标位置
+        if (distance < 0.1f)
+        {
+            isMoving = false;
+            if (animator) animator.SetFloat("speed", 0f);
+            return;
+        }
+
+        // 匀速移动
+        Vector3 moveDir = direction.normalized;
+
+        // 平滑转向
+        Quaternion targetRot = Quaternion.LookRotation(moveDir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 10f * Time.deltaTime);
+
+        // 重力
         if (controller.isGrounded)
             verticalSpeed = -0.5f;
         else
             verticalSpeed += gravity * Time.deltaTime;
 
-        Vector3 movement = moveDir.normalized * speed * Time.deltaTime;
+        Vector3 movement = moveDir * moveSpeed * Time.deltaTime;
         movement.y = verticalSpeed * Time.deltaTime;
         controller.Move(movement);
 
-        if (animator) animator.SetFloat("speed", speed);
+        if (animator) animator.SetFloat("speed", moveSpeed);
+
+        // 角色移动时，摄像机自动跟随使角色居中
+        if (cameraController != null)
+        {
+            cameraController.ResetOffsetToTarget();
+        }
     }
 }
