@@ -397,15 +397,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1595804698036029326}
-  minDistance: 5
-  maxDistance: 20
+  minDistance: 10
+  maxDistance: 200
   minPitch: 30
   maxPitch: 90
   zoomSpeed: 2
   edgeRotateSpeed: 60
   edgeThreshold: 20
-  panSpeed: 10
-  groundTransform: {fileID: 2012610999}
+  panSpeed: 20
+  terrain: {fileID: 2111459285}
 --- !u!1 &201039446
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,7 +1033,7 @@ Transform:
   m_GameObject: {fileID: 1056453381}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -28.392502, y: 16.75288, z: 456.1798}
+  m_LocalPosition: {x: -28.392502, y: 19.7, z: 456.1798}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

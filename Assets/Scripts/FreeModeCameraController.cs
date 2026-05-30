@@ -13,8 +13,8 @@ public class FreeModeCameraController : MonoBehaviour
     public Transform target; // 角色
 
     [Header("距离设定")]
-    public float minDistance = 5f;
-    public float maxDistance = 20f;
+    public float minDistance = 10f;
+    public float maxDistance = 200f;
 
     [Header("角度设定（X轴俯仰角）")]
     public float minPitch = 30f;  // 最小角度，能完整看到角色
@@ -30,8 +30,8 @@ public class FreeModeCameraController : MonoBehaviour
     [Header("WASD移动")]
     public float panSpeed = 10f;
 
-    [Header("Ground边界")]
-    public Transform groundTransform; // Ground对象的Transform
+    [Header("Terrain边界")]
+    public Terrain terrain; // Terrain对象
 
     // 当前参数
     private float currentDistance;
@@ -113,12 +113,22 @@ public class FreeModeCameraController : MonoBehaviour
         Vector3 moveDir = (right * h + forward * v).normalized;
         Vector3 newOffset = cameraOffset + moveDir * panSpeed * Time.deltaTime;
 
-        // 检查Ground边界限制
-        if (groundTransform != null && Camera.main != null)
+        // 检查Terrain边界限制
+        if (terrain != null && Camera.main != null)
         {
-            Vector3 groundCenter = groundTransform.position;
-            float groundHalfX = groundTransform.localScale.x * 5f;
-            float groundHalfZ = groundTransform.localScale.z * 5f;
+            // 获取Terrain的世界坐标边界
+            Vector3 terrainPos = terrain.transform.position;
+            Vector3 terrainSize = terrain.terrainData.size;
+            
+            // Terrain的四个边界（世界坐标）
+            float terrainMinX = terrainPos.x;
+            float terrainMaxX = terrainPos.x + terrainSize.x;
+            float terrainMinZ = terrainPos.z;
+            float terrainMaxZ = terrainPos.z + terrainSize.z;
+            
+            // Terrain中心点
+            float terrainCenterX = terrainPos.x + terrainSize.x * 0.5f;
+            float terrainCenterZ = terrainPos.z + terrainSize.z * 0.5f;
 
             // 摄像机看向的地面中心点
             Vector3 lookCenter = target.position + newOffset;
@@ -132,30 +142,25 @@ public class FreeModeCameraController : MonoBehaviour
             float viewHalfZ = heightAboveGround * Mathf.Tan(verticalFovRad * 0.5f);
             float viewHalfX = heightAboveGround * Mathf.Tan(horizontalFovRad * 0.5f);
 
-            // 限制：Ground边界不能越过屏幕中心
-            // 即 lookCenter 到 Ground 边界的距离必须 >= 视野半径的一半
-            // 换言之：lookCenter.x 不能让左边界到达屏幕中心
-            float maxOffsetX = groundHalfX - viewHalfX * 0.5f;
-            float maxOffsetZ = groundHalfZ - viewHalfZ * 0.5f;
+            // 限制：Terrain边界不能越过屏幕中心
+            float halfSizeX = terrainSize.x * 0.5f;
+            float halfSizeZ = terrainSize.z * 0.5f;
+            float maxOffsetX = halfSizeX - viewHalfX * 0.5f;
+            float maxOffsetZ = halfSizeZ - viewHalfZ * 0.5f;
 
-            // 确保最大偏移不为负（视野比Ground还大时不限制）
-            if (maxOffsetX < 0) maxOffsetX = groundHalfX;
-            if (maxOffsetZ < 0) maxOffsetZ = groundHalfZ;
+            // 确保最大偏移不为负（视野比Terrain还大时不限制）
+            if (maxOffsetX < 0) maxOffsetX = halfSizeX;
+            if (maxOffsetZ < 0) maxOffsetZ = halfSizeZ;
 
-            // lookCenter相对于Ground中心的偏移
-            float relX = lookCenter.x - groundCenter.x;
-            float relZ = lookCenter.z - groundCenter.z;
+            // lookCenter相对于Terrain中心的偏移
+            float relX = lookCenter.x - terrainCenterX;
+            float relZ = lookCenter.z - terrainCenterZ;
 
-            // 限制偏移范围
-            if (relX < -maxOffsetX || relX > maxOffsetX ||
-                relZ < -maxOffsetZ || relZ > maxOffsetZ)
-            {
-                // 只限制超出的方向
-                if (h < 0 && relX < -maxOffsetX) return;
-                if (h > 0 && relX > maxOffsetX) return;
-                if (v > 0 && relZ > maxOffsetZ) return;
-                if (v < 0 && relZ < -maxOffsetZ) return;
-            }
+            // 限制偏移范围 - 只限制超出的方向
+            if (h < 0 && relX < -maxOffsetX) return;
+            if (h > 0 && relX > maxOffsetX) return;
+            if (v > 0 && relZ > maxOffsetZ) return;
+            if (v < 0 && relZ < -maxOffsetZ) return;
         }
 
         cameraOffset = newOffset;
